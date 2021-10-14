@@ -20,3 +20,4 @@ dependencies:
   - markdown-it-py
   - linkify-it-py
   - mdit-py-plugins
+  - py3dmol
