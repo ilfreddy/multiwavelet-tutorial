@@ -35,7 +35,7 @@ extensions = [
     # 'sphinx.ext.intersphinx',
     "sphinxcontrib.bibtex",
     "sphinx.ext.todo",
-    "sphinx_thebe",
+    # "sphinx_thebe",
 ]
 # configure myst_nb
 source_suffix = {".rst": "restructuredtext", ".ipynb": "myst-nb", ".myst": "myst-nb"}
@@ -89,7 +89,6 @@ html_theme_options = {
     "home_page_in_toc": True,
     "launch_buttons": {
         "jupyterhub_url": "https://hylleraas.jupyterhub.uio.no/",
-        "thebe": True,
         "notebook_interface": "jupyterlab",
     },
 }
