@@ -12,13 +12,16 @@ def readCoords(f):
     with open(f) as file:
         return '\n'.join([line.strip() for line in file.readlines()[2:]])
     
-def makeInput(world_prec=None, xyzfile=None, fname=None):
-    """Parameters:
+def makeEnergyInput(world_prec=None, xyzfile=None, fname=None):
+    """
+    Write MRChem JSON input file for energy calculation.
+    
+    Parameters:
+    -------------
     
     world_prec: precision to use
     xyzfile: path to xyzfile
     fname: name of the generated input file (without extension, .inp assumed)"""
-    """Write MRChem JSON input file."""
     i = {
         'world_prec': world_prec,
         'world_unit': 'angstrom',
@@ -38,6 +41,49 @@ def makeInput(world_prec=None, xyzfile=None, fname=None):
             'kain': 5,
             'write_orbitals': True,
             'localize': True,
+            'max_iter': 20
+        }
+    }
+    
+    with open(fname+'.inp', 'w') as f:
+        json.dump(i, f, indent=2)
+        
+def makeNMRInput(world_prec=None, xyzfile=None, fname=None):
+    """
+    Write MRChem JSON input file for NMR calculation.
+    
+    Parameters:
+    -------------
+    
+    world_prec: precision to use
+    xyzfile: path to xyzfile
+    fname: name of the generated input file (without extension, .inp assumed)"""
+    i = {
+        'world_prec': world_prec,
+        'world_unit': 'angstrom',
+        'Molecule': {
+            'charge': 0,
+            'multiplicity': 1,
+            'translate': True,
+            'coords': readCoords(xyzfile)
+        },
+        'WaveFunction': {
+            'method': 'pbe', 
+            'restricted': True
+        },
+        'SCF': {
+            'guess_type': 'sad_dz',
+            'guess_prec': 1e-4,
+            'kain': 5,
+            'write_orbitals': True,
+            'localize': True,
+            'max_iter': 20
+        },
+        'Properties': {
+            'nmr_shielding': True
+        },
+        'Response': {
+            'kain': 5,
             'max_iter': 20
         }
     }
