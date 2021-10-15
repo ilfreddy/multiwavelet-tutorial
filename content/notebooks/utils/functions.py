@@ -1,7 +1,80 @@
 import json
 import numpy as np
+import os
+import subprocess
+import shutil
 import matplotlib.pyplot as plt
 from types import SimpleNamespace
+
+
+def readCoords(f):
+    """Read XYZ file and return as MRChem JSON friendly string."""
+    with open(f) as file:
+        return '\n'.join([line.strip() for line in file.readlines()[2:]])
+    
+def makeInput(world_prec=None, xyzfile=None, fname=None):
+    """Parameters:
+    
+    world_prec: precision to use
+    xyzfile: path to xyzfile
+    fname: name of the generated input file (without extension, .inp assumed)"""
+    """Write MRChem JSON input file."""
+    i = {
+        'world_prec': world_prec,
+        'world_unit': 'angstrom',
+        'Molecule': {
+            'charge': 0,
+            'multiplicity': 1,
+            'translate': True,
+            'coords': readCoords(xyzfile)
+        },
+        'WaveFunction': {
+            'method': 'pbe', 
+            'restricted': True
+        },
+        'SCF': {
+            'guess_type': 'sad_dz',
+            'guess_prec': 1e-4,
+            'kain': 5,
+            'write_orbitals': True,
+            'localize': True,
+            'max_iter': 20
+        }
+    }
+    
+    with open(fname+'.inp', 'w') as f:
+        json.dump(i, f, indent=2)
+
+def submit(nprocs=None, inputfile=None):
+    """Make calc dir, move inputfile, and start the calculation.
+    
+    Parameters:
+    -----------
+    nprocs      : Number of OpenMP threads to use
+    inputfile   : Name of input file (without extension)"""
+
+    ROOT = os.path.abspath('')
+    
+    # Check if all arguments given
+    assert not any([nprocs is None, inputfile is None]), 'Missing arguments'
+    
+    dest = os.path.join(ROOT, f'{inputfile}_calc')
+    
+    # Make calc dir
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    os.makedirs(dest)
+        
+    # Check if input file exists
+    if not os.path.exists(inputfile+'.inp'):
+        print(f'Error: Input file <{inputfile}.inp> not found')
+        return
+    
+    shutil.move(inputfile+'.inp', os.path.join(dest, inputfile+'.inp'))
+    os.chdir(dest)
+    os.environ['OMP_NUM_THREADS'] = str(nprocs)
+    subprocess.call(['mrchem', '--json',  inputfile+'.inp'])
+    os.chdir(ROOT)
 
 
 
