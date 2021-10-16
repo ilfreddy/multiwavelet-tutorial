@@ -45,9 +45,8 @@ def plot_cube(corner, length):
     return (a, b, c, d, e, f)
 
 
-def grid_plotter(tree):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
+def grid_plotter(tree=None, dpi=150, lw=0.08, color=(1, 0, 0, 0.01)):
+    fig, ax = plt.subplots(figsize=(6, 6), dpi=150, subplot_kw={'projection': '3d'})
     ax.grid(False)
     ax.axis("off")
 
@@ -60,4 +59,6 @@ def grid_plotter(tree):
     for i in range(tree.nEndNodes()):
         data = plot_cube(corners[i], lengths[i])
         for d in data:
-            ax.plot_surface(d[0], d[1], d[2], color="purple", alpha=0.01)
+            ax.plot_surface(d[0], d[1], d[2], color=color, edgecolor='black', lw=lw)
+
+    return fig, ax
